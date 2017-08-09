@@ -6,7 +6,7 @@ sig Cliente{
 
 sig Livro{}
 
-sig Drone{
+abstract sig  Drone{
 	livrosComprados: set Livro
 }
 
@@ -14,20 +14,44 @@ sig ClienteConvenio in Cliente{
 	
 }
 
-sig DroneConvenio in Drone{}
+sig DroneConvenio extends Drone{}
+
+sig DroneNormal extends Drone{}
 
 
-fact{
-	#Drone = 3
-	some Cliente
-	all c:Cliente | #(c.pedido.livrosComprados) < 4
-	all c:Cliente | #(c.pedido.livrosComprados) = 0 => #(c.pedido) = 0
-	#(Livro.~livrosComprados) = 1
-	all d:Drone | #(d.~pedido) = 1
+fun livrosDoDroneConvenio[dc: DroneConvenio]: set Livro {
+	dc.livrosComprados
+	
 }
 
+fun livrosDoDroneNormal[dn: DroneNormal]: set Livro{
+	dn.livrosComprados
+}
+
+fact {
+	all dc: DroneConvenio | #livrosDoDroneConvenio[dc] < 6
+
+}
+
+fact{
+	all dn:DroneNormal | #livrosDoDroneNormal[dn] < 4
+
+
+}
+
+fact relacaoDroneLivro{
+	#DroneNormal = 3
+	all d:Drone | #(d.livrosComprados) < 4
+
+}
+
+fact relacaoDroneConvenioLivro {
+	#DroneConvenio = 2
+	all d:Drone | #(d.livrosComprados) < 6
+
+}
 
 
 pred show[]{}
 
-run show 
+run show for 5
