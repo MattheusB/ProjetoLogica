@@ -1,17 +1,23 @@
 module loja
 
-sig Cliente{
-	pedido: one Drone
+abstract sig Cliente{
+
 }
 
-sig Livro{}
+sig Livro{
+
+}
 
 abstract sig  Drone{
 	livrosComprados: set Livro
 }
 
-sig ClienteConvenio in Cliente{
-	
+sig ClienteNormal extends Cliente{
+		pedido: one DroneNormal
+}
+
+sig ClienteConvenio extends Cliente{
+		pedido: one DroneConvenio
 }
 
 sig DroneConvenio extends Drone{}
@@ -50,6 +56,12 @@ fact relacaoDroneConvenioLivro {
 	all d:Drone | #(d.livrosComprados) < 6
 
 }
+
+//fact relacaoDroneLivro {
+//	all c:Cliente | #(c.pedido) = 0 => #(c.pedido.livrosComprados) = 0
+//	#(Livro.~livrosComprados) = 1
+//	#(Drone.~pedido) = 1
+//}
 
 
 pred show[]{}
