@@ -1,23 +1,29 @@
 module loja
 
-sig Loja{
-	clientes: Cliente
-}
 sig Cliente{
-	pedido: set Pedidos
-}
-sig Pedidos{
-	livrosComprado: set Livro
+	pedido: one Drone
 }
 
 sig Livro{}
 
-sig Drones{}
+sig Drone{
+	livrosComprados: set Livro
+}
 
-sig ClienteConvenio in Cliente{}
+sig ClienteConvenio in Cliente{
+	
+}
+
+sig DroneConvenio in Drone{}
+
 
 fact{
-	all  c:Cliente | #(c.pedido.livrosComprado) < 4
+	#Drone = 3
+	some Cliente
+	all c:Cliente | #(c.pedido.livrosComprados) < 4
+	all c:Cliente | #(c.pedido.livrosComprados) = 0 => #(c.pedido) = 0
+	#(Livro.~livrosComprados) = 1
+	all d:Drone | #(d.~pedido) = 1
 }
 
 
