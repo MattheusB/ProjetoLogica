@@ -69,12 +69,12 @@ fact{
 }
 
 
-//fact {
-//	all d: Drone | one p: Pedido{
-//	d.livrosPedidos in p.livrosPedidos
-//	}
+fact {
+	all d: Drone | one p: Pedido{
+	d.livrosPedidos in p.livrosPedidos
+	}
 
-//}
+}
 
 
 fact {
