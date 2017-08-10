@@ -1,67 +1,89 @@
 module loja
 
 abstract sig Cliente{
+	
 
 }
 
 sig Livro{
 
 }
-
-abstract sig  Drone{
-	livrosComprados: set Livro
-}
-
-sig ClienteNormal extends Cliente{
-		pedido: one DroneNormal
-}
-
-sig ClienteConvenio extends Cliente{
-		pedido: one DroneConvenio
-}
-
-sig DroneConvenio extends Drone{}
-
-sig DroneNormal extends Drone{}
-
-
-fun livrosDoDroneConvenio[dc: DroneConvenio]: set Livro {
-	dc.livrosComprados
+sig Pedido {
 	
 }
 
-fun livrosDoDroneNormal[dn: DroneNormal]: set Livro{
-	dn.livrosComprados
+abstract sig  Drone{
+
+}
+
+sig ClienteNormal extends Cliente{
+	livrosPedidos: lone PedidoNormal
+
+}
+
+sig ClienteConvenio extends Cliente{
+	livrosPedidos: lone PedidoConvenio
+
+}
+
+sig DroneConvenio extends Drone{
+		pedido: lone PedidoConvenio
+
+}
+
+sig DroneNormal extends Drone{
+		pedido: lone PedidoNormal
+
+}
+
+sig PedidoNormal extends Pedido{
+	livrosComprados: some Livro
+
+}
+
+sig PedidoConvenio extends Pedido{
+	livrosComprados: some Livro
+
+}
+
+
+fun livrosPedidoNormal[pn: PedidoNormal]: set Livro {
+	pn.livrosComprados
+	
+}
+
+fun livrosPedidoConvenio[pc: PedidoConvenio]: set Livro{
+	pc.livrosComprados
 }
 
 fact {
-	all dc: DroneConvenio | #livrosDoDroneConvenio[dc] < 6
+	all pc: PedidoConvenio | #livrosPedidoConvenio[pc] > 3
+	all pc: PedidoConvenio | #livrosPedidoConvenio[pc] < 6
 
 }
 
 fact{
-	all dn:DroneNormal | #livrosDoDroneNormal[dn] < 4
+	all pn: PedidoNormal | #livrosPedidoNormal[pn] < 4
 
 
 }
 
-fact relacaoDroneLivro{
-	#DroneNormal = 3
-	all d:Drone | #(d.livrosComprados) < 4
 
-}
+//fact {
+//	all d: Drone | one p: Pedido{
+//	d.livrosPedidos in p.livrosPedidos
+//	}
 
-fact relacaoDroneConvenioLivro {
-	#DroneConvenio = 2
-	all d:Drone | #(d.livrosComprados) < 6
-
-}
-
-//fact relacaoDroneLivro {
-//	all c:Cliente | #(c.pedido) = 0 => #(c.pedido.livrosComprados) = 0
-//	#(Livro.~livrosComprados) = 1
-//	#(Drone.~pedido) = 1
 //}
+
+
+fact {
+	#DroneNormal = 3
+	#DroneConvenio = 2
+	
+
+}
+
 
 
 pred show[]{}
