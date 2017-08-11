@@ -2,7 +2,7 @@ module loja
 
 abstract sig Cliente{}
 
-sig Livro{}
+sig Livro {}
 
 abstract sig Pedido {}
 
@@ -25,19 +25,19 @@ sig DroneNormal extends Drone{
 }
 
 sig PedidoNormal extends Pedido{
-	livrosComprados: some Livro
+	livrosCompradosN: some Livro
 }
 
 sig PedidoConvenio extends Pedido{
-	livrosComprados: some Livro
+	livrosCompradosC: some Livro
 }
 
 fun livrosPedidoNormal[pn: PedidoNormal]: set Livro {
-	pn.livrosComprados
+	pn.livrosCompradosN
 }
 
 fun livrosPedidoConvenio[pc: PedidoConvenio]: set Livro{
-	pc.livrosComprados
+	pc.livrosCompradosC
 }
 
 fun pedidosClienteNormal[cn: ClienteNormal]: set PedidoNormal {
@@ -47,6 +47,12 @@ fun pedidosClienteNormal[cn: ClienteNormal]: set PedidoNormal {
 fun pedidosClienteConvenio[cc: ClienteConvenio]: set PedidoConvenio{
 	cc.pedidoCliente
 }
+
+fun recebeLivros[l: Livro]: set Pedido{
+	l.~livrosCompradosN or l.~livrosCompradosC
+}
+
+
 
 //Relacao de Cliente e Pedido de 1 para 1, cada cliente so pode ter um pedido por vez
 fact relacaoClientePedido{
@@ -70,6 +76,8 @@ fact relacaoPedidoConvenio{
 	all pc: PedidoConvenio | one dc: DroneConvenio{
 		DronePedidoCONVENIO[dc,pc]
 	}
+
+	
 }
 
 fact relacaoPedidoNormal{
@@ -82,7 +90,18 @@ fact relacaoPedidoNormal{
  	all pn: PedidoNormal | one dn: DroneNormal{
  		DronePedidoNORMAL[dn,pn]
 	}
+
+	all pn: PedidoNormal, pc: PedidoConvenio | one l: Livro {
+
+	}
+
 }
+
+
+
+//	all pn: PedidoNormal | some pn.livrosComprados
+//	all l: Livro |one  l.~livrosCompradosN
+
 
 
 fact relacaoDroneNormal{
@@ -122,6 +141,8 @@ pred PedidoClienteCONVENIO[cc: ClienteConvenio, pc: PedidoConvenio] {
 }
 
 
+
+
 fact quantidadeDrones {
 
 	#DroneNormal = 3
@@ -145,10 +166,10 @@ assert assertDroneNormal {
 }
 
 
-check assertClienteNormal for 5
-check assertDroneConvenio for 5
-check assertClienteConvenio for 5
-check assertDroneNormal for 5
+--check assertClienteNormal for 5
+--check assertDroneConvenio for 5
+--check assertClienteConvenio for 5
+--check assertDroneNormal for 5
 
 
 
