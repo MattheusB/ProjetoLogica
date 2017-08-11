@@ -55,6 +55,14 @@ fun livrosPedidoNormal[pn: PedidoNormal]: set Livro {
 fun livrosPedidoConvenio[pc: PedidoConvenio]: set Livro{
  pc.livrosComprados
 }
+
+fun pedidosClienteNormal[cn: ClienteNormal]: set PedidoNormal {
+	cn.pedidoCliente
+}
+
+fun pedidosClienteConvenio[cc: ClienteConvenio]: set PedidoConvenio{
+	cc.pedidoCliente
+}
 //Relacao de Cliente e Pedido de 1 para 1, cada cliente so pode ter um pedido por vez
 fact relacaoClientePedido{
  all cn: ClienteNormal | lone pn: PedidoNormal{
@@ -131,18 +139,18 @@ fact {
 }
 
 assert clienteNormalUm {
-	all cn: ClienteNormal | #(cn.pedidoCliente) = 1
+	all cn: ClienteNormal | #pedidosClienteNormal[cn] = 1
 
 }
 
 
 assert clienteNormalZero {
-	all cn: ClienteNormal | #(cn.pedidoCliente) = 0
+	all cn: ClienteNormal | #pedidosClienteNormal[cn] = 0
 
 }
 
 assert clienteNormalErrado {
-	all cn: ClienteNormal | #(cn.pedidoCliente) = 2
+	all cn: ClienteNormal | #pedidosClienteNormal[cn] = 2
 }
 
 assert pedidoNormalTres {
@@ -156,6 +164,3 @@ assert pedidoNormalTres {
 pred show[]{}
 
 run show for 13 but exactly 5 ClienteNormal, exactly 10 ClienteConvenio
-
-
-
