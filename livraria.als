@@ -1,59 +1,43 @@
 module loja
 
-abstract sig Cliente{
-  
+abstract sig Cliente{}
 
-}
+sig Livro{}
 
-sig Livro{
+abstract sig Pedido {}
 
-}
-abstract sig Pedido {
-  
-}
-
-abstract sig Drone{
-
-}
+abstract sig Drone{}
 
 sig ClienteNormal extends Cliente{
- pedidoCliente: lone PedidoNormal
-
+	pedidoCliente: lone PedidoNormal
 }
 
 sig ClienteConvenio extends Cliente{
- pedidoCliente: lone PedidoConvenio
-
+	pedidoCliente: lone PedidoConvenio
 }
 
 sig DroneConvenio extends Drone{
- 	pedidoConvenio: lone PedidoConvenio
-
+	pedidoConvenio: lone PedidoConvenio
 }
 
 sig DroneNormal extends Drone{
- 	pedidoNormal: lone PedidoNormal
-
+	pedidoNormal: lone PedidoNormal
 }
 
 sig PedidoNormal extends Pedido{
- livrosComprados: some Livro
-
+	livrosComprados: some Livro
 }
 
 sig PedidoConvenio extends Pedido{
- livrosComprados: some Livro
-
+	livrosComprados: some Livro
 }
 
-
 fun livrosPedidoNormal[pn: PedidoNormal]: set Livro {
- pn.livrosComprados
-  
+	pn.livrosComprados
 }
 
 fun livrosPedidoConvenio[pc: PedidoConvenio]: set Livro{
- pc.livrosComprados
+	pc.livrosComprados
 }
 
 fun pedidosClienteNormal[cn: ClienteNormal]: set PedidoNormal {
@@ -63,90 +47,94 @@ fun pedidosClienteNormal[cn: ClienteNormal]: set PedidoNormal {
 fun pedidosClienteConvenio[cc: ClienteConvenio]: set PedidoConvenio{
 	cc.pedidoCliente
 }
+
 //Relacao de Cliente e Pedido de 1 para 1, cada cliente so pode ter um pedido por vez
 fact relacaoClientePedido{
- all cn: ClienteNormal | lone pn: PedidoNormal{
- 	cn.pedidoCliente = pn
- }
- all cc: ClienteConvenio | lone pc: PedidoConvenio{
- 	cc.pedidoCliente = pc
- }
+	all cn: ClienteNormal | lone pn: PedidoNormal{
+ 		PedidoClienteNORMAL[cn,pn]
+	}
+
+	all cc: ClienteConvenio | lone pc: PedidoConvenio{
+ 		PedidoClienteCONVENIO[cc,pc]
+	}
 }
 
 fact {
- all pc: PedidoConvenio | #livrosPedidoConvenio[pc] > 3
- all pc: PedidoConvenio | #livrosPedidoConvenio[pc] < 6
- all pc: PedidoConvenio | one cc: ClienteConvenio{
- 	cc.pedidoCliente = pc
- }
- all pc: PedidoConvenio | one dc: DroneConvenio{
- 	dc.pedidoConvenio = pc
- }
-
+	all pc: PedidoConvenio | #livrosPedidoConvenio[pc] > 3
+	all pc: PedidoConvenio | #livrosPedidoConvenio[pc] < 6
+	all pc: PedidoConvenio | one cc: ClienteConvenio{
+ 		PedidoClienteCONVENIO[cc,pc]
+	}
+	all pc: PedidoConvenio | one dc: DroneConvenio{
+		DronePedidoCONVENIO[dc,pc]
+	}
 }
 
 fact relacaoPedidoNormal{
- all pn: PedidoNormal | #livrosPedidoNormal[pn] < 4
- //Pedido so existe se tiver um cliente.
- all pn: PedidoNormal | one cn: ClienteNormal{
- 	cn.pedidoCliente = pn
- }
- all pn: PedidoNormal | one dn: DroneNormal{
- 	dn.pedidoNormal = pn
- }
-  
+	all pn: PedidoNormal | #livrosPedidoNormal[pn] < 4
+
+	//Pedido so existe se tiver um cliente.
+	all pn: PedidoNormal | one cn: ClienteNormal{
+ 		PedidoClienteNORMAL[cn,pn]
+	}
+ 	all pn: PedidoNormal | one dn: DroneNormal{
+ 		DronePedidoNORMAL[dn,pn]
+	}
 }
 
-
-
-
 fact relacaoDroneNormal{
- all dn: DroneNormal | one cn: ClienteNormal{
- 		DroneClienteNORMAL[dn, cn]
- 	}
+	all dn: DroneNormal | one cn: ClienteNormal{
+ 		DroneClienteNORMAL[dn,cn]
+	}
 }
 
 fact relacaoDroneConvenio{
- all dc: DroneConvenio | one cc: ClienteConvenio{
- 		DroneClienteCONVENIO[dc, cc]
+	all dc: DroneConvenio | one cc: ClienteConvenio{
+ 		DroneClienteCONVENIO[dc,cc]
  	}
 }
 
 pred DroneClienteNORMAL[dn: DroneNormal, cn: ClienteNormal] {
-  dn.pedidoNormal in cn.pedidoCliente
+	dn.pedidoNormal in cn.pedidoCliente
 }
 
 pred DroneClienteCONVENIO[dc: DroneConvenio, cc: ClienteConvenio] {
-  dc.pedidoConvenio in cc.pedidoCliente
+	dc.pedidoConvenio in cc.pedidoCliente
 }
 
+pred DronePedidoNORMAL[dn: DroneNormal, pn: PedidoNormal] {
+	dn.pedidoNormal = pn
+}
 
+pred DronePedidoCONVENIO[dc: DroneConvenio, pc: PedidoConvenio] {
+	dc.pedidoConvenio = pc
+}
+
+pred PedidoClienteNORMAL[cn: ClienteNormal, pn: PedidoNormal] {
+	cn.pedidoCliente = pn
+}
+
+pred PedidoClienteCONVENIO[cc: ClienteConvenio, pc: PedidoConvenio] {
+	cc.pedidoCliente = pc
+}
 
 fact relacaoDroneConvenio{
- all dc: DroneConvenio | one cc: ClienteConvenio{
- 	dc.pedidoConvenio in cc.pedidoCliente
+	all dc: DroneConvenio | one cc: ClienteConvenio{
+ 		dc.pedidoConvenio in cc.pedidoCliente
  	}
 }
 
-
-
-
 fact {
- #DroneNormal = 3
- #DroneConvenio = 2
-  
-
+	#DroneNormal = 3
+	#DroneConvenio = 2
 }
 
 assert clienteNormalUm {
 	all cn: ClienteNormal | #pedidosClienteNormal[cn] = 1
-
 }
-
 
 assert clienteNormalZero {
 	all cn: ClienteNormal | #pedidosClienteNormal[cn] = 0
-
 }
 
 assert clienteNormalErrado {
@@ -155,11 +143,7 @@ assert clienteNormalErrado {
 
 assert pedidoNormalTres {
 	all pn: PedidoNormal | #livrosPedidoNormal[pn] > 4
-
 }
-
-
-
 
 pred show[]{}
 
