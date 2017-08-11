@@ -59,9 +59,10 @@ fact relacaoClientePedido{
 	}
 }
 
-fact {
+fact relacaoPedidoConvenio{
 	all pc: PedidoConvenio | #livrosPedidoConvenio[pc] > 3
 	all pc: PedidoConvenio | #livrosPedidoConvenio[pc] < 6
+
 	all pc: PedidoConvenio | one cc: ClienteConvenio{
  		PedidoClienteCONVENIO[cc,pc]
 	}
@@ -118,13 +119,7 @@ pred PedidoClienteCONVENIO[cc: ClienteConvenio, pc: PedidoConvenio] {
 	cc.pedidoCliente = pc
 }
 
-fact relacaoDroneConvenio{
-	all dc: DroneConvenio | one cc: ClienteConvenio{
- 		dc.pedidoConvenio in cc.pedidoCliente
- 	}
-}
-
-fact {
+fact quantidadeDrones {
 	#DroneNormal = 3
 	#DroneConvenio = 2
 }
