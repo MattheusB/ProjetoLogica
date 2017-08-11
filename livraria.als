@@ -17,12 +17,12 @@ abstract sig Drone{
 }
 
 sig ClienteNormal extends Cliente{
- livrosPedidos: lone PedidoNormal
+ pedidoCliente: lone PedidoNormal
 
 }
 
 sig ClienteConvenio extends Cliente{
- livrosPedidos: lone PedidoConvenio
+ pedidoCliente: lone PedidoConvenio
 
 }
 
@@ -57,11 +57,11 @@ fun livrosPedidoConvenio[pc: PedidoConvenio]: set Livro{
 }
 //Relacao de Cliente e Pedido de 1 para 1, cada cliente so pode ter um pedido por vez
 fact relcaoClientePedido{
- all cn: ClienteNormal | one pn: PedidoNormal{
- 	cn.livrosPedidos = pn
+ all cn: ClienteNormal | lone pn: PedidoNormal{
+ 	cn.pedidoCliente = pn
  }
- all cc: ClienteConvenio | one pc: PedidoConvenio{
- 	cc.livrosPedidos = pc
+ all cc: ClienteConvenio | lone pc: PedidoConvenio{
+ 	cc.pedidoCliente = pc
  }
 }
 
@@ -69,7 +69,7 @@ fact {
  all pc: PedidoConvenio | #livrosPedidoConvenio[pc] > 3
  all pc: PedidoConvenio | #livrosPedidoConvenio[pc] < 6
  all pc: PedidoConvenio | one cc: ClienteConvenio{
- 	cc.livrosPedidos = pc
+ 	cc.pedidoCliente = pc
  }
  all pc: PedidoConvenio | one dc: DroneConvenio{
  	dc.pedidoConvenio = pc
@@ -81,7 +81,7 @@ fact relacaoPedidoNormal{
  all pn: PedidoNormal | #livrosPedidoNormal[pn] < 4
  //Pedido so existe se tiver um cliente.
  all pn: PedidoNormal | one cn: ClienteNormal{
- 	cn.livrosPedidos = pn
+ 	cn.pedidoCliente = pn
  }
  all pn: PedidoNormal | one dn: DroneNormal{
  	dn.pedidoNormal = pn
@@ -94,7 +94,7 @@ fact relacaoPedidoNormal{
 
 fact relacaoDroneNormal{
  all dn: DroneNormal | one cn: ClienteNormal{
- 	dn.pedidoNormal in cn.livrosPedidos
+ 	dn.pedidoNormal in cn.pedidoCliente
  	}
   
   
@@ -105,7 +105,7 @@ fact relacaoDroneNormal{
 
 fact relacaoDroneConvenio{
  all dc: DroneConvenio | one cc: ClienteConvenio{
- 	dc.pedidoConvenio in cc.livrosPedidos
+ 	dc.pedidoConvenio in cc.pedidoCliente
  	}
 }
 
@@ -119,8 +119,32 @@ fact {
 
 }
 
+assert clienteNormalUm {
+	all cn: ClienteNormal | #(cn.pedidoCliente) = 1
+
+}
+
+
+assert clienteNormalZero {
+	all cn: ClienteNormal | #(cn.pedidoCliente) = 0
+
+}
+
+assert clienteNormalErrado {
+	all cn: ClienteNormal | #(cn.pedidoCliente) = 2
+}
+
+assert pedidoNormalTres {
+	all pn: PedidoNormal | #livrosPedidoNormal[pn] > 4
+
+}
+
+
 
 
 pred show[]{}
 
-run show for 5
+run show for 13 but exactly 3 ClienteNormal, exactly 2 ClienteConvenio
+
+
+
