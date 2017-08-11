@@ -50,6 +50,7 @@ fun pedidosClienteConvenio[cc: ClienteConvenio]: set PedidoConvenio{
 
 //Relacao de Cliente e Pedido de 1 para 1, cada cliente so pode ter um pedido por vez
 fact relacaoClientePedido{
+	all cn: ClienteNormal | #pedidosClienteNormal[cn] < 2
 	all cn: ClienteNormal | lone pn: PedidoNormal{
  		PedidoClienteNORMAL[cn,pn]
 	}
@@ -82,6 +83,7 @@ fact relacaoPedidoNormal{
  		DronePedidoNORMAL[dn,pn]
 	}
 }
+
 
 fact relacaoDroneNormal{
 	all dn: DroneNormal | one cn: ClienteNormal{
@@ -119,26 +121,37 @@ pred PedidoClienteCONVENIO[cc: ClienteConvenio, pc: PedidoConvenio] {
 	cc.pedidoCliente = pc
 }
 
+
 fact quantidadeDrones {
+
 	#DroneNormal = 3
 	#DroneConvenio = 2
 }
 
-assert clienteNormalUm {
-	all cn: ClienteNormal | #pedidosClienteNormal[cn] = 1
+assert assertClienteNormal{
+	all cn: ClienteNormal | #(cn.pedidoCliente) < 2 and #(cn.pedidoCliente) >-1
 }
 
-assert clienteNormalZero {
-	all cn: ClienteNormal | #pedidosClienteNormal[cn] = 0
+assert assertDroneConvenio {
+	all dc: DroneConvenio | #(dc.pedidoConvenio) < 2 and #(dc.pedidoConvenio) > -1
 }
 
-assert clienteNormalErrado {
-	all cn: ClienteNormal | #pedidosClienteNormal[cn] = 2
+assert assertClienteConvenio{
+	all cc: ClienteConvenio | #(cc.pedidoCliente) < 2 and #(cc.pedidoCliente) > -1
 }
 
-assert pedidoNormalTres {
-	all pn: PedidoNormal | #livrosPedidoNormal[pn] > 4
+assert assertDroneNormal {
+	all dn: DroneNormal | #(dn.pedidoNormal) < 2 and #(dn.pedidoNormal) > -1
 }
+
+
+check assertClienteNormal for 5
+check assertDroneConvenio for 5
+check assertClienteConvenio for 5
+check assertDroneNormal for 5
+
+
+
 
 pred show[]{}
 
