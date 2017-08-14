@@ -1,6 +1,5 @@
 module loja
 
-
 ---------------------------------------- SIGNATURES ----------------------------------------
 
 sig Livro{}
@@ -47,17 +46,15 @@ sig PedidoConvenio extends Pedido{}
 
 //Relacao de Cliente e Pedido de 1 para 1, cada cliente so pode ter um pedido por vez.
 fact relacaoClientePedido{
-	//Cliente so pode realizar um pedido simultaneamente.
-	all cn: ClienteNormal | #pedidosClienteNormal[cn] < 2
 
 	//Cliente normal pode ter ou nao um pedido normal associado.
 	all cn: ClienteNormal | lone pn: PedidoNormal{
- 		PedidoClienteNORMAL[cn,pn]
+ 		pedidoClienteNormal[cn,pn]
 	}
 
 	//Cliente conveniado pode ter ou nao um pedido conveniado associado.
 	all cc: ClienteConvenio | lone pc: PedidoConvenio{
- 		PedidoClienteCONVENIO[cc,pc]
+ 		pedidoClienteConvenio[cc,pc]
 	}
 }
 
@@ -68,11 +65,11 @@ fact relacaoPedidoNormal{
 
 	//Pedido so existe se tiver um cliente normal.
 	all pn: PedidoNormal | one cn: ClienteNormal{
- 		PedidoClienteNORMAL[cn,pn]
+ 		pedidoClienteNormal[cn,pn]
 	}
 	//Pedido so existe se tiver um drone normal disponivel.
  	all pn: PedidoNormal | one dn: DroneNormal{
- 		DronePedidoNORMAL[dn,pn]
+ 		dronePedidoNormal[dn,pn]
 	}	
 }
 
@@ -86,12 +83,12 @@ fact relacaoPedidoConvenio{
 
 	//Pedido so existe se tiver um cliente conveniado.
 	all pc: PedidoConvenio | one cc: ClienteConvenio{
- 		PedidoClienteCONVENIO[cc,pc]
+ 		pedidoClienteConvenio[cc,pc]
 	}
 
 	//Pedido so existe se tiver um drone especial disponivel.
 	all pc: PedidoConvenio | one dc: DroneConvenio{
-		DronePedidoCONVENIO[dc,pc]
+		dronePedidoConvenio[dc,pc]
 	}	
 }
 
@@ -108,16 +105,16 @@ fact relacaoLivroComPedido{
 }
 
 //Um drone normal esta associado apenas a um cliente normal ou esta guardado no armazem.
-fact relacaoDroneNormal{
+fact RelacaoDroneNormal{
 	all dn: DroneNormal | lone cn: ClienteNormal{
- 		DroneClienteNORMAL[dn,cn]
+ 		droneClienteNormal[dn,cn]
 	}
 }
 
 //Um drone especial esta associado apenas a um cliente conveniado ou esta guardado no armazem.
-fact relacaoDroneConvenio{
+fact RelacaoDroneConvenio{
 	all dc: DroneConvenio | lone cc: ClienteConvenio{
- 		DroneClienteCONVENIO[dc,cc]
+ 		droneClienteConvenio[dc,cc]
  	}
 }
 
@@ -125,32 +122,32 @@ fact relacaoDroneConvenio{
 
 
 //Pedido do drone normal esta ligado ao pedido do cliente normal.
-pred DroneClienteNORMAL[dn: DroneNormal, cn: ClienteNormal] {
+pred droneClienteNormal[dn: DroneNormal, cn: ClienteNormal] {
 	dn.pedidoNormal in cn.pedidoCliente
 }
 
 //Pedido do drone especial esta ligado ao pedido do cliente conveniado.
-pred DroneClienteCONVENIO[dc: DroneConvenio, cc: ClienteConvenio] {
+pred droneClienteConvenio[dc: DroneConvenio, cc: ClienteConvenio] {
 	dc.pedidoConvenio in cc.pedidoCliente
 }
 
 //Drone normal recebe um pedido.
-pred DronePedidoNORMAL[dn: DroneNormal, pn: PedidoNormal] {
+pred dronePedidoNormal[dn: DroneNormal, pn: PedidoNormal] {
 	dn.pedidoNormal = pn
 }
 
 //Drone especial recebe um pedido.
-pred DronePedidoCONVENIO[dc: DroneConvenio, pc: PedidoConvenio] {
+pred dronePedidoConvenio[dc: DroneConvenio, pc: PedidoConvenio] {
 	dc.pedidoConvenio = pc
 }
 
 //Cliente normal e associado a um pedido.
-pred PedidoClienteNORMAL[cn: ClienteNormal, pn: PedidoNormal] {
+pred pedidoClienteNormal[cn: ClienteNormal, pn: PedidoNormal] {
 	cn.pedidoCliente = pn
 }
 
 //Cliente conveniado e associado a um pedido.
-pred PedidoClienteCONVENIO[cc: ClienteConvenio, pc: PedidoConvenio] {
+pred pedidoClienteConvenio[cc: ClienteConvenio, pc: PedidoConvenio] {
 	cc.pedidoCliente = pc
 }
 
