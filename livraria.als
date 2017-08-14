@@ -1,27 +1,32 @@
 module loja
 
+
+---------------------------------------- SIGNATURES ----------------------------------------
+
 sig Livro{}
 
+// Cliente pode realizar ou nao um pedido.
 abstract sig Cliente{}
 
-//Cliente normal pode realizar ou nao um pedido.
+//Cliente normal pode realizar um pedido de ate 3 livros.
 sig ClienteNormal extends Cliente{
 	pedidoCliente: lone PedidoNormal
 }
 
-//Cliente conveniado pode realizar ou nao um pedido.
+//Cliente conveniado  pode realizar um pedido de ate 5 livros.
 sig ClienteConvenio extends Cliente{
 	pedidoCliente: lone PedidoConvenio
 }
 
+//Drone pode estar ou nao associado a um pedido.
 abstract sig Drone{}
 
-//Drone normal pode estar ou nao associado a um pedido.
+//Drone normal pode estar carregando um pedido de até 3 livros.
 sig DroneNormal extends Drone{
 	pedidoNormal: lone PedidoNormal
 }
 
-//Drone especial pode estar ou nao associado a um pedido.
+//Drone especial pode estar carregando um pedido de até 5 livros.
 sig DroneConvenio extends Drone{
 	pedidoConvenio: lone PedidoConvenio
 }
@@ -37,25 +42,8 @@ sig PedidoNormal extends Pedido{}
 //Pedido para cliente conveniado.
 sig PedidoConvenio extends Pedido{}
 
-//Funcao retorna o pedido do cliente normal.
-fun pedidosClienteNormal[cn: ClienteNormal]: set PedidoNormal{
-	cn.pedidoCliente
-}
 
-//Funcao retorna o pedido do cliente conveniado.
-fun pedidosClienteConvenio[cc: ClienteConvenio]: set PedidoConvenio{
-	cc.pedidoCliente
-}
-
-//Funcao retorna o set de livros comprados do pedido normal.
-fun livrosPedidoNormal[pn: PedidoNormal]: set Livro{
-	pn.livrosComprados
-}
-
-//Funcao retorna o set de livros comprados do pedido conveniado.
-fun livrosPedidoConvenio[pc: PedidoConvenio]: set Livro{
-	pc.livrosComprados
-}
+---------------------------------------- FACTS ----------------------------------------
 
 //Relacao de Cliente e Pedido de 1 para 1, cada cliente so pode ter um pedido por vez.
 fact relacaoClientePedido{
@@ -88,6 +76,8 @@ fact relacaoPedidoNormal{
 	}	
 }
 
+
+
 //Relacao do pedido com cliente conveniado e drone especial.
 fact relacaoPedidoConvenio{
 	//Drone especial pode carregar ate 5 livros simultaneamente.
@@ -104,6 +94,13 @@ fact relacaoPedidoConvenio{
 		DronePedidoCONVENIO[dc,pc]
 	}	
 }
+
+//Quantidade de drones disponiveis no armazem.
+fact quantidadeDrones {
+	#DroneNormal = 3
+	#DroneConvenio = 2
+}
+
 
 //Um livro esta associado apenas a um pedido ou esta guardado no armazem.
 fact relacaoLivroComPedido{
@@ -123,6 +120,9 @@ fact relacaoDroneConvenio{
  		DroneClienteCONVENIO[dc,cc]
  	}
 }
+
+---------------------------------------- PREDICATES ----------------------------------------
+
 
 //Pedido do drone normal esta ligado ao pedido do cliente normal.
 pred DroneClienteNORMAL[dn: DroneNormal, cn: ClienteNormal] {
@@ -154,11 +154,33 @@ pred PedidoClienteCONVENIO[cc: ClienteConvenio, pc: PedidoConvenio] {
 	cc.pedidoCliente = pc
 }
 
-//Quantidade de drones disponiveis no armazem.
-fact quantidadeDrones {
-	#DroneNormal = 3
-	#DroneConvenio = 2
+pred show[]{}
+
+
+---------------------------------------- FUNCTIONS ----------------------------------------
+
+//Funcao retorna o pedido do cliente normal.
+fun pedidosClienteNormal[cn: ClienteNormal]: set PedidoNormal{
+	cn.pedidoCliente
 }
+
+//Funcao retorna o pedido do cliente conveniado.
+fun pedidosClienteConvenio[cc: ClienteConvenio]: set PedidoConvenio{
+	cc.pedidoCliente
+}
+
+//Funcao retorna o set de livros comprados do pedido normal.
+fun livrosPedidoNormal[pn: PedidoNormal]: set Livro{
+	pn.livrosComprados
+}
+
+//Funcao retorna o set de livros comprados do pedido conveniado.
+fun livrosPedidoConvenio[pc: PedidoConvenio]: set Livro{
+	pc.livrosComprados
+}
+
+
+---------------------------------------- ASSERTS ----------------------------------------
 
 assert assertClienteNormal{
 	all cn: ClienteNormal | #(cn.pedidoCliente) < 2 and #(cn.pedidoCliente) > -1
@@ -176,11 +198,14 @@ assert assertDroneNormal {
 	all dn: DroneNormal | #(dn.pedidoNormal) < 2 and #(dn.pedidoNormal) > -1
 }
 
+
+---------------------------------------- CHECK'S ----------------------------------------
+
 --check assertClienteNormal for 5
 --check assertDroneConvenio for 5
 --check assertClienteConvenio for 5
 --check assertDroneNormal for 5
 
-pred show[]{}
+
 
 run show for 13 but exactly 5 ClienteNormal, exactly 10 ClienteConvenio
